@@ -45,21 +45,28 @@ class RestaurantScreen extends StatelessWidget {
                       json: item,
                     );
 
-                    return RestaurantCard(
-                      image: Image.network(
-                        pItem.thumbUrl,
-                        fit: BoxFit.cover,
+                    return GestureDetector(
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(builder: (_) => RestaurantScreen()),
+                        );
+                      },
+                      child: RestaurantCard(
+                        image: Image.network(
+                          pItem.thumbUrl,
+                          fit: BoxFit.cover,
+                        ),
+                        // image: Image.asset(
+                        //   'asset/img/food/ddeok_bok_gi.jpg',
+                        //   fit: BoxFit.cover,
+                        // ),
+                        name: pItem.name,
+                        tags: pItem.tags,
+                        ratingsCount: pItem.ratingsCount,
+                        deliveryTime: pItem.deliveryTime,
+                        deliveryFee: pItem.deliveryFee,
+                        ratings: pItem.ratings,
                       ),
-                      // image: Image.asset(
-                      //   'asset/img/food/ddeok_bok_gi.jpg',
-                      //   fit: BoxFit.cover,
-                      // ),
-                      name: pItem.name,
-                      tags: pItem.tags,
-                      ratingsCount: pItem.ratingsCount,
-                      deliveryTime: pItem.deliveryTime,
-                      deliveryFee: pItem.deliveryFee,
-                      ratings: pItem.ratings,
                     );
                   },
                   separatorBuilder: (_, index) {
