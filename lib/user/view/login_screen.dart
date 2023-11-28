@@ -1,13 +1,30 @@
-import 'package:actual/common/component/custom_text_form_field.dart';
-import 'package:flutter/material.dart';
-import 'package:actual/common/const/color.dart';
-import 'package:actual/common/layout/default_layout.dart';
+import 'dart:convert';
+import 'dart:io';
 
-class LoginScreen extends StatelessWidget {
-  const LoginScreen({Key? key}) : super(key: key); // key 파라미터를 올바르게 설정하세요.
+import 'package:actual/common/component/custom_text_form_field.dart';
+import 'package:actual/common/const/color.dart';
+import 'package:actual/common/const/data.dart';
+import 'package:actual/common/layout/default_layout.dart';
+import 'package:actual/user/view/root_tab.dart';
+import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
+class LoginScreen extends StatefulWidget {
+  const LoginScreen({Key? key}) : super(key: key);
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  String username = '';
+  String password = '';
 
   @override
   Widget build(BuildContext context) {
+    final dio = Dio();
+
     return DefaultLayout(
       child: SingleChildScrollView(
         keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
@@ -15,29 +32,63 @@ class LoginScreen extends StatelessWidget {
           top: true,
           bottom: false,
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 _Title(),
-                SizedBox(height: 16.0),
+                const SizedBox(height: 16.0),
                 _SubTitle(),
                 Image.asset(
-                  'asset/img/misc/logo.png', // 경로를 'assets'로 수정하세요.
+                  'asset/img/misc/logo.png',
                   width: MediaQuery.of(context).size.width / 3 * 2,
                 ),
                 CustomTextFormField(
-                    hintText: '이메일을 입력해주세요',
-                    onChanged: (String value) {},
-                    obscureText: false),
-                SizedBox(height: 16.0), // 비밀번호 입력 필드에서 obscureText를 false로 설정
+                  hintText: '이메일을 입력해주세요.',
+                  onChanged: (String value) {
+                    username = value;
+                  },
+                ),
+                const SizedBox(height: 16.0),
                 CustomTextFormField(
-                    hintText: '비밀번호를 입력해주세요',
-                    onChanged: (String value) {},
-                    obscureText: true),
+                  hintText: '비밀번호를 입력해주세요.',
+                  onChanged: (String value) {
+                    password = value;
+                  },
+                  obscureText: true,
+                ),
+                const SizedBox(height: 16.0),
                 ElevatedButton(
-                  onPressed: () {
-                    // 실제로 수행되어야 하는 동작을 추가하세요.
+                  onPressed: () async {
+                    // ID:비밀번호
+                    final rawString = '$username:$password';
+
+                    Codec<String, String> stringToBase64 = utf8.fuse(base64);
+
+                    String token = stringToBase64.encode(rawString);
+
+                    final resp = await dio.post(
+                      'http://$ip/auth/login',
+                      options: Options(
+                        headers: {
+                          'authorization': 'Basic $token',
+                        },
+                      ),
+                    );
+
+                    final refreshToken = resp.data['refreshToken'];
+                    final accessToken = resp.data['accessToken'];
+
+                    await storage.write(
+                        key: REFRESH_TOKEN_KEY, value: refreshToken);
+                    await storage.write(
+                        key: ACCESS_TOKEN_KEY, value: accessToken);
+
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => RootTab(),
+                      ),
+                    );
                   },
                   style: ElevatedButton.styleFrom(
                     primary: PRIMARY_COLOR,
@@ -47,12 +98,14 @@ class LoginScreen extends StatelessWidget {
                   ),
                 ),
                 TextButton(
-                    onPressed: () {
-                      // 실제로 수행되어야 하는 동작을 추가하세요.
-                    },
-                    child: Text(
-                      '회원가입',
-                    ))
+                  onPressed: () async {},
+                  style: TextButton.styleFrom(
+                    primary: Colors.black,
+                  ),
+                  child: Text(
+                    '회원가입',
+                  ),
+                ),
               ],
             ),
           ),
@@ -70,7 +123,10 @@ class _Title extends StatelessWidget {
     return Text(
       '환영합니다!',
       style: TextStyle(
-          fontSize: 34, fontWeight: FontWeight.w500, color: Colors.black),
+        fontSize: 34,
+        fontWeight: FontWeight.w500,
+        color: Colors.black,
+      ),
     );
   }
 }
