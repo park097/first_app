@@ -1,6 +1,28 @@
 import 'package:actual/common/const/data.dart';
+import 'package:actual/common/secure_storage/secure_storage.dart';
 import 'package:dio/dio.dart';
+import 'package:riverpod/riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
+//디오프로바이더를 선언, 프로바이더 불러오고 레를받고 반환
+//프로바이더안에서 레프를 써서 또다른 프로이버를 불러올 수 있음
+//디오를 리천해줌
+final dioProvider = Provider<Dio>((ref) {
+  //일반함수, 디오선언
+  final dio = Dio();
+
+  //스토리지가 시크어스토리지프로바디어 안에서 반환해주는 플러터시큐어스토리지
+  //
+  final storage = ref.watch(secureStorageProvider);
+
+  dio.interceptors.add(
+    CustomInterceptor(
+      storage: storage,
+    ),
+  );
+
+  return dio;
+});
 
 class CustomInterceptor extends Interceptor {
   //외부에서 받아 올 거임,스토리지에서 토큰을 받아와야 하니까

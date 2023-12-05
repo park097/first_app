@@ -45,6 +45,8 @@ dependencies:
   badges: ^2.0.3
   uuid: ^3.0.6
   debounce_throttle: ^2.0.0
+  firebase_core: ^2.24.0
+  cloud_firestore: ^4.13.3
 
 dev_dependencies:
   flutter_test:
