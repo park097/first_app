@@ -79,7 +79,7 @@ class UserMeStateNotifier extends StateNotifier<UserModelBase?> {
 
   Future<void> logout() async {
     state = null;
-
+//한번에 하고싶을 때
     await Future.wait(
       [
         storage.delete(key: REFRESH_TOKEN_KEY),
