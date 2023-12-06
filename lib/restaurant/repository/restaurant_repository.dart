@@ -1,6 +1,7 @@
 import 'package:actual/common/const/data.dart';
 import 'package:actual/common/dio/dio.dart';
 import 'package:actual/common/model/cursor_pagination_model.dart';
+import 'package:actual/common/model/pagination_params.dart';
 import 'package:actual/restaurant/model/restaurant_detail_model.dart';
 import 'package:actual/restaurant/model/restaurant_model.dart';
 import 'package:dio/dio.dart' hide Headers; // dio 라이브러리의 Headers를 사용하겠다고 명시
@@ -32,7 +33,9 @@ abstract class RestaurantRepository {
     'accessToken': 'true',
   })
   //제네릭에 어떤 타입을 적냐에 따라
-  Future<CursorPagination<RestaurantModel>> paginate();
+  Future<CursorPagination<RestaurantModel>> paginate({
+    @Queries() PaginationParams? paginationParams = const PaginationParams(),
+  });
 
 //어떤 모델로 맵핑이 되는지만 보면됨,
   //함수는 저게 만들어줌 , 실제로 응답을 받는 형태와 완전히 똑같은 형태의 클래스를 반환값으로 넣어줘야됨
