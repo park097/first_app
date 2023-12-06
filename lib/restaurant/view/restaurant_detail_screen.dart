@@ -1,9 +1,13 @@
 import 'package:actual/common/layout/default_layout.dart';
+import 'package:actual/common/model/cursor_pagination_model.dart';
 import 'package:actual/product/component/product_card.dart';
+import 'package:actual/rating/component/rating_card.dart';
+import 'package:actual/rating/model/rating_model.dart';
 import 'package:actual/restaurant/component/restaurant_card.dart';
 import 'package:actual/restaurant/model/restaurant_detail_model.dart';
 import 'package:actual/restaurant/model/restaurant_model.dart';
 import 'package:actual/restaurant/provider/restaurant_provider.dart';
+import 'package:actual/restaurant/provider/restaurant_rating_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:skeletons/skeletons.dart';
@@ -26,41 +30,63 @@ class _RestaurantDetailScreenState
   @override
   void initState() {
     super.initState();
-    //레스토랑 프로바이더가 레스토랑 디테일을 워치하고 있기 때문에, 이 스테이트가 바뀌면 알아서 바뀝니다.
+
     ref.read(restaurantProvider.notifier).getDetail(id: widget.id);
   }
 
   @override
   Widget build(BuildContext context) {
-    return Consumer(
-      builder: (context, ref, _) {
-        final state = ref.watch(restaurantDetailProvider(widget.id));
+    final state = ref.watch(restaurantDetailProvider(widget.id));
+    final ratingsState = ref.watch(restaurantRatingProvider(widget.id));
 
-        if (state == null) {
-          return DefaultLayout(
-            child: Center(
-              child: CircularProgressIndicator(),
-            ),
-          );
-        }
+    print(ratingsState);
 
-        return DefaultLayout(
-          title: '불타는 떡볶이',
-          child: CustomScrollView(
-            slivers: [
-              renderTop(
-                model: state!,
-              ),
-              if (state is! RestaurantDetailModel) renderLoading(),
-              if (state is RestaurantDetailModel) renderLabel(),
-              if (state is RestaurantDetailModel)
-                renderProducts(
-                  products: state.products,
-                ),
-            ],
+    if (state == null) {
+      return DefaultLayout(
+        child: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
+    return DefaultLayout(
+      title: '불타는 떡볶이',
+      child: CustomScrollView(
+        slivers: [
+          renderTop(
+            model: state,
           ),
-        );
-      },
+          if (state is! RestaurantDetailModel) renderLoading(),
+          if (state is RestaurantDetailModel) renderLabel(),
+          if (state is RestaurantDetailModel)
+            renderProducts(
+              products: state.products,
+            ),
+          if (ratingsState is CursorPagination<RatingModel>)
+            renderRatings(
+              models: ratingsState.data,
+            ),
+        ],
+      ),
+    );
+  }
+
+  SliverPadding renderRatings({
+    required List<RatingModel> models,
+  }) {
+    return SliverPadding(
+      padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
+      sliver: SliverList(
+        delegate: SliverChildBuilderDelegate(
+          (_, index) => Padding(
+            padding: const EdgeInsets.only(bottom: 16.0),
+            child: RatingCard.fromModel(
+              model: models[index],
+            ),
+          ),
+          childCount: models.length,
+        ),
+      ),
     );
   }
 

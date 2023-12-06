@@ -1,4 +1,5 @@
 import 'package:actual/common/const/data.dart';
+import 'package:actual/common/model/model_with_id.dart';
 import 'package:actual/common/utils/data_utils.dart';
 import 'package:json_annotation/json_annotation.dart';
 
@@ -14,7 +15,7 @@ enum RestaurantPriceRange {
 
 //클래스를 json-sreializable로 자동으로 코드를 생성시킬거다
 @JsonSerializable()
-class RestaurantModel {
+class RestaurantModel implements IModelWithId {
   final String id;
   final String name;
   @JsonKey(

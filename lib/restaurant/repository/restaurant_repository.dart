@@ -2,6 +2,7 @@ import 'package:actual/common/const/data.dart';
 import 'package:actual/common/dio/dio.dart';
 import 'package:actual/common/model/cursor_pagination_model.dart';
 import 'package:actual/common/model/pagination_params.dart';
+import 'package:actual/common/repository/base_pagination_repository.dart';
 import 'package:actual/restaurant/model/restaurant_detail_model.dart';
 import 'package:actual/restaurant/model/restaurant_model.dart';
 import 'package:dio/dio.dart' hide Headers; // dio 라이브러리의 Headers를 사용하겠다고 명시
@@ -21,7 +22,8 @@ final restaurantRepositoryProvider = Provider<RestaurantRepository>(
 );
 
 @RestApi()
-abstract class RestaurantRepository {
+abstract class RestaurantRepository
+    implements IBasePaginationRepository<RestaurantModel> {
   // http://$ip/restaurant
   //외부에서 생성해서 디오를 넣어줄거임,공통되는 부분은 베이스유알엘로
   factory RestaurantRepository(Dio dio, {String baseUrl}) =
